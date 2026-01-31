@@ -23,10 +23,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <gmp.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <gmp.h>
 
 #define DSP_MAX (128)
 #define N_MAX (128)
