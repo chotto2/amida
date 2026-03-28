@@ -22,14 +22,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <gmp.h>
 
 #define DSP_MAX (128)
-#define N_MAX (128)
+//#define N_MAX (128)
+#define N_MAX (1000000)
 #define M_MAX (N_MAX)
+#define D_MAX (256)	// d(720720)=240
 
 typedef struct {
-	mpz_t div;
+	uint32_t div[D_MAX];
 	int cnt;
 } DIVS, *pDIVS;
 DIVS divs[N_MAX+1];
@@ -44,45 +45,57 @@ int32_t main()
 	uint64_t d;
 	int32_t ret = 0;
 	uint64_t ofs;
+        uint32_t count;
+        uint64_t pre;
 
 	/*--- init ---*/
-	for (n = 0; n <= N_MAX; n++)
-		mpz_init(divs[n].div);
-
-	/*--- base ---*/
-	for (m = 1; m <= M_MAX; m++) {
-		divs[0].cnt++;
-		ofs = m - 1;
-		mpz_setbit(divs[0].div, ofs);
-	}
+        for (n = 1; n <= N_MAX; n++) {
+                divs[n].div[0] = n;
+                divs[n].cnt = 1;
+        }
 
 	/*--- other ---*/
-	for (n = 0; n <= N_MAX; n++) {
-		for (m = 1; m <= M_MAX; m++) {
-			if ((n+m) > N_MAX) break;
-			ofs = m - 1;
-			if (mpz_tstbit(divs[n  ].div, ofs)) {
-			    mpz_setbit(divs[n+m].div, ofs);
-			    divs[n+m].cnt++;
-			}
-		}
-	}
+        for (n = 1; n <= N_MAX; n++) {
+                for (ofs = 0; ofs < M_MAX; ofs++) {
+                        m = divs[n].div[ofs];
+                        if (m == 0) {
+                                break;
+                        }
+                        else {
+                                if ((n+m) > N_MAX) {
+                                        ;
+                                }
+                                else {
+                                        count = divs[n+m].cnt;
+                                        divs[n+m].div[count] = m;
+                                        divs[n+m].cnt++;
+                                }
+                        }
+                }
+        }
 
 	/*--- for printing ---*/
-	printf("      n:   d(n):divisors2(n, %d)\n", M_MAX);
-	for (n = 0; n <= N_MAX; n++) {
-		printf("%7llu:%7d:", n, divs[n].cnt);
-		for (d = 1; d <= DSP_MAX; d++) {
-			ofs = d - 1;
-			printf("%s", (mpz_tstbit(divs[n].div, ofs) != 0)? "*": " ");
+	printf("      n:   d(n):divisors2(n, %d)\n", DSP_MAX);
+	printf("%7lu:%7d:", 0, N_MAX);
+	for (m = 1; m <= DSP_MAX; m++) printf("*");
+	printf("...\n");
+        for (n = 1; n <= N_MAX; n++) {
+		printf("%7lu:%7d:", n, divs[n].cnt);
+		pre = 0;
+                for (int cnt = divs[n].cnt; cnt > 0; cnt--) {
+			m = divs[n].div[cnt-1];
+			if (m > DSP_MAX) break;
+			if (pre) {
+				int i;
+				for (i = 0; i < (m - pre - 1); i++) {
+					printf(" ");
+				}
+			}
+			printf("*");
+			pre = m;
 		}
-		printf("%s", (divs[n].cnt >= DSP_MAX)? "...": "");
 		printf("\n");
 	}
-
-	/*--- clear ---*/
-	for (n = 0; n <= N_MAX; n++)
-		mpz_clear(divs[n].div);
 
 	return ret;
 }
