@@ -49,18 +49,21 @@ docker build -t amida .
 
 # Run (list output)
 docker run -it amida /app/build/amida
+
+# Run（No list output + performance measurement）
+docker run --rm amida bash -c "time /app/build/amida --benchmark"
 ```
 
 ## Performance
 
 ```text
-real    2m44.752s
-user    0m0.081s
-sys     0m0.424s
+real    0m0.903s
+user    0m0.402s
+sys     0m0.417s
 ```
 
 ※Codespace: 2-Core  
-※Without output redirection
+※No output when the '--benchmark' argument is specified
 
 ## Output Example
 

@@ -48,20 +48,23 @@ cd amida
 # Dockerイメージのビルド
 docker build -t amida .
 
-# 実行（リスト出力）
+# 実行（リスト出力あり）
 docker run -it amida /app/build/amida
+
+# 実行（リスト出力なし＋パフォーマンス測定）
+docker run --rm amida bash -c "time /app/build/amida --benchmark"
 ```
 
 ## パフォーマンス
 
 ```text
-real    2m44.752s
-user    0m0.081s
-sys     0m0.424s
+real    0m0.903s
+user    0m0.402s
+sys     0m0.417s
 ```
 
 ※Codespace:2-Core  
-※出力のリダイレクトなし
+※引数'--benchmark'指定で出力なし
 
 ## 出力例
 
