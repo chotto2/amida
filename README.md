@@ -58,13 +58,14 @@ docker run --rm amida bash -c "time /app/build/amida --benchmark"
 ## パフォーマンス
 
 ```text
-real    0m0.903s
-user    0m0.402s
-sys     0m0.417s
+real    0m0.6492
+user    0m0.3149
+sys     0m0.3076
 ```
 
 ※Codespace:2-Core  
-※引数'--benchmark'指定で出力なし
+※引数'--benchmark'指定で出力なし  
+※測定10回の平均値
 
 ## 出力例
 
