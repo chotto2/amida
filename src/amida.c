@@ -15,6 +15,24 @@
  * 2. Propagate: if divs[n] has bit m set, then divs[n+m] also has bit m
  * 3. This creates a geometric pattern resembling 45-degree paths
  *
+ * @note v1.2.0 (2026-04-04): Up to 2,000,000
+ *       1. Extended the upper limit of integers from 1,000,000 to 2,000,000
+ *       2. Expanded the memory that holds divisors
+ *          - Note: d(1441440)=288 is the maximum within the range 0–2,000,000, so the array size is set to 296. (approx. 2.4GB)
+ *          - Note: Change to dynamic memory(calloc)
+ *
+ * @note v1.1.0 (2026-04-01): Up to 1,000,000
+ *       1. Extended the upper limit of integers from 128 to 1,000,000
+ *       2. Removed GMP bit operations
+ *       3. Improved memory efficiency by storing divisor values in an array
+ *          - Note: d(720720)=240 is the maximum within the range 0–1,000,000, so the array size is set to 256. (approx. 1GB)
+ *          - Note: Stored in ascending order, with NULL(0) as the terminator
+ *
+ * @note v1.0.0 (2026-01-31): Add amida command
+ *       1. Plots the divisors of integers from 0 to 128
+ *       2. Data retention by GMP bit operation
+ *       3. No divisors exist in the VOID region.
+ *
  * Copyright (c) 2026 chotto2
  * License: MIT (or your preferred license)
  */
@@ -22,18 +40,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string.h>
 
+#define D_MAX (296)	// d(1441440)=288
 #define DSP_MAX (128)
-//#define N_MAX (128)
-#define N_MAX (1000000)
+#define N_MAX (2000000)
 #define M_MAX (N_MAX)
-#define D_MAX (256)	// d(720720)=240
 
 typedef struct {
 	uint32_t div[D_MAX];
 	int cnt;
 } DIVS, *pDIVS;
-DIVS divs[N_MAX+1];
+pDIVS divs;
 
 int benchmark_mode = 0;
 
@@ -57,13 +75,20 @@ int32_t main(int argc, char *argv[])
  	   }
 	}
 
+	/*--- divs[N_MAX+1] ---*/
+	divs = calloc(N_MAX+1, sizeof(DIVS));
+	if (divs == NULL) {
+		printf("ERR: NULL = calloc(%d, %d)\n", N_MAX+1, sizeof(DIVS));
+		return -1;
+	}
+
 	/*--- init ---*/
         for (n = 1; n <= N_MAX; n++) {
                 divs[n].div[0] = n;
                 divs[n].cnt = 1;
         }
 
-	/*--- other ---*/
+	/*--- amida process ---*/
         for (n = 1; n <= N_MAX; n++) {
                 for (ofs = 0; ofs < M_MAX; ofs++) {
                         m = divs[n].div[ofs];
@@ -107,6 +132,8 @@ int32_t main(int argc, char *argv[])
 			printf("\n");
 		}
 	}
+
+	free(divs);
 
 	return ret;
 }
