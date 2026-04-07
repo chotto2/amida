@@ -49,7 +49,7 @@
 
 #define D_MAX (344)	// d(2882880)=336
 #define DSP_MAX (128)
-#define N_MAX (2000000)
+#define N_MAX (3000000)
 #define M_MAX (N_MAX)
 
 typedef struct {
