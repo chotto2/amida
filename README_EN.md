@@ -4,7 +4,7 @@
 
 ## Overview
 
-This program finds divisors of integers from 0 to 2000000 using a novel algorithm based on the "45-degree Mirror Conjecture for Divisors" and displays them with asterisks (*).  
+This program finds divisors of integers from 0 to 3000000 using a novel algorithm based on the "45-degree Mirror Conjecture for Divisors" and displays them with asterisks (*).  
 This is a derivative program originating from the previously published [dstar-dev](https://github.com/chotto2/dstar-dev).  
 The asterisk pattern plotted by this program (hereafter referred to as "amida") matches the pattern generated using the Sieve of Eratosthenes.  
 However, it does not use the Sieve of Eratosthenes but instead employs the 45-degree Mirror Conjecture for Divisors described in the dstar-dev README.  
@@ -20,7 +20,7 @@ However, the appearance is the same as dstar-dev.
 ## Features
 
 - 🐳 **Docker Support** - Reproducible build environment
-- 📊 **Divisors up to 2000000** - Suitable size for educational and research purposes
+- 📊 **Divisors up to 3000000** - Suitable size for educational and research purposes
 
 ## Requirements
 
@@ -57,9 +57,9 @@ docker run --rm amida bash -c "time /app/build/amida --benchmark"
 ## Performance
 
 ```text
-real    0m1.8979s
-user    0m1.0133s
-sys     0m0.7464s
+real    0m2.7145s
+user    0m1.6523s
+sys     0m0.9443s
 ```
 
 ※Codespace: 2-Core  
@@ -73,7 +73,7 @@ The output result of `amida` is shown below.
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:******************************** ...
+      0:3000000:******************************** ...
       1:      1:*
       2:      2:**
       3:      2:* *
@@ -115,7 +115,7 @@ Step 1) Plot divisors of n=0
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      0:
       2:      0:
       3:      0:
@@ -129,7 +129,7 @@ Step 2) Expand divisor pattern of n=0 from n=1 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      1: *
       3:      1:  *
@@ -143,7 +143,7 @@ Step 3) Expand divisor pattern of n=1 from n=2 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      2:**
       3:      1:  *
@@ -157,7 +157,7 @@ Step 4) Expand divisor pattern of n=2 from n=3 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      2:**
       3:      2:* *
@@ -171,7 +171,7 @@ Step 5) Expand divisor pattern of n=3 from n=4 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      2:**
       3:      2:* *
@@ -185,7 +185,7 @@ Step 6) Expand divisor pattern of n=4 from n=5 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      2:**
       3:      2:* *
@@ -199,7 +199,7 @@ Step 7) Expand divisor pattern of n=5 from n=6 at 45-degree angle
 
 ```text
       n:   d(n):divisor2(n, 128)
-      0:2000000:********************************...
+      0:3000000:********************************...
       1:      1:*
       2:      2:**
       3:      2:* *
@@ -219,11 +219,11 @@ Step 8) By repeating the above process, divisors of all integers can be found.
 - **Language**: C
 - **Library**: GMP (GNU Multiple Precision Arithmetic Library)
 - **Build System**: CMake
-- **Divisor Range**: 0..2000000
+- **Divisor Range**: 0..3000000
 
 ## Cautions
 
-⚠️ **Important**: This version is an implementation for educational and research purposes. It handles divisors up to integer 2000000, so it does not affect modern cryptographic systems (such as RSA-4096).
+⚠️ **Important**: This version is an implementation for educational and research purposes. It handles divisors up to integer 3000000, so it does not affect modern cryptographic systems (such as RSA-4096).
 
 ## Future Plans
 
