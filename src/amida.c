@@ -47,13 +47,15 @@
 #include <stdint.h>
 #include <string.h>
 
-#define D_MAX (344)	// d(2882880)=336
-#define DSP_MAX (128)
-#define N_MAX (3000000)
+#define N_MAX (4000000)
 #define M_MAX (N_MAX)
+#define DSP_MAX (128)
+
+uint32_t *divs_pool;
 
 typedef struct {
-	uint32_t div[D_MAX];
+	uint32_t pool_ofs;
+	uint32_t pool_cnt;
 	int cnt;
 } DIVS, *pDIVS;
 pDIVS divs;
@@ -79,23 +81,43 @@ int32_t main(int argc, char *argv[])
  	   }
 	}
 
-	/*--- divs[N_MAX+1] ---*/
+	/*--- alloc divs ---*/
 	divs = calloc(N_MAX+1, sizeof(DIVS));
 	if (divs == NULL) {
-		printf("ERR: NULL = calloc(%d, %d)\n", N_MAX+1, sizeof(DIVS));
+		printf("ERR: divs(0) = calloc(%d, %ld)\n", N_MAX+1, sizeof(DIVS));
 		return -1;
 	}
 
-	/*--- init ---*/
-        for (n = 1; n <= N_MAX; n++) {
-                divs[n].div[0] = n;
-                divs[n].cnt = 1;
-        }
+	/*--- make pool_cnt by dstar ---*/
+	for (m = 1; m <= M_MAX; m++) {
+		for (n = m; n <= N_MAX; n += m) {
+		divs[n].pool_cnt++;
+		}
+	}
+
+	/*--- make pool_ofs ---*/
+	ofs = 0;
+	for (n = 1; n <= N_MAX; n++) {
+		divs[n].pool_ofs = ofs;
+		ofs += divs[n].pool_cnt;
+		ofs++;  // for NULL padding.
+	}
+
+	/*--- alloc pool ---*/
+	divs_pool = calloc(ofs, sizeof(uint32_t));
+	if (divs_pool == NULL) {
+		printf("ERR: divs_pool(0) = calloc(%ld, %ld)\n", ofs, sizeof(uint32_t));
+		return -2;
+	}
 
 	/*--- amida process ---*/
         for (n = 1; n <= N_MAX; n++) {
+                divs_pool[divs[n].pool_ofs] = n;
+                divs[n].cnt = 1;
+        }
+        for (n = 1; n <= N_MAX; n++) {
                 for (ofs = 0; ofs < M_MAX; ofs++) {
-                        m = divs[n].div[ofs];
+                        m = divs_pool[divs[n].pool_ofs+ofs];
                         if (m == 0) {
                                 break;
                         }
@@ -104,8 +126,8 @@ int32_t main(int argc, char *argv[])
                                         ;
                                 }
                                 else {
-                                        if (divs[n+m].cnt < D_MAX) {
-                                        	divs[n+m].div[divs[n+m].cnt] = m;
+                                        if (divs[n+m].cnt < divs[n+m].pool_cnt) {
+                                        	divs_pool[divs[n+m].pool_ofs+divs[n+m].cnt] = m;
 					}
                                         divs[n+m].cnt++;
                                 }
@@ -116,7 +138,7 @@ int32_t main(int argc, char *argv[])
 	/*--- for printing ---*/
 	if (!benchmark_mode) {
 		printf("      n:   d(n):divisors2(n, %d)\n", DSP_MAX);
-		printf("%7lu:%7d:", 0, N_MAX);
+		printf("%7d:%7d:", 0, N_MAX);
 		for (m = 1; m <= DSP_MAX; m++) printf("*");
 		printf("...\n");
 		
@@ -124,7 +146,7 @@ int32_t main(int argc, char *argv[])
 			printf("%7lu:%7d:", n, divs[n].cnt);
 			pre = 0;
                 	for (int cnt = divs[n].cnt; cnt > 0; cnt--) {
-				m = divs[n].div[cnt-1];
+                        	m = divs_pool[divs[n].pool_ofs+(cnt-1)];
 				if (m > DSP_MAX) break;
 				if (pre) {
 					for (int i = 0; i < (m - pre - 1); i++) {
@@ -138,6 +160,7 @@ int32_t main(int argc, char *argv[])
 		}
 	}
 
+	free(divs_pool);
 	free(divs);
 
 	return ret;
