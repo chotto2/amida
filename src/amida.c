@@ -46,6 +46,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 
 #define N_MAX (4000000)
 #define M_MAX (N_MAX)
@@ -73,6 +75,9 @@ int32_t main(int argc, char *argv[])
 	int32_t ret = 0;
 	uint64_t ofs;
         uint64_t pre;
+	struct rusage r_start, r_end;
+	struct timeval wall_start, wall_end;
+
 
 	/*--- check argv ---*/
 	for (int i = 1; i < argc; i++) {
@@ -110,6 +115,12 @@ int32_t main(int argc, char *argv[])
 		return -2;
 	}
 
+	/*--- get start time ---*/
+	if (benchmark_mode) {
+		gettimeofday(&wall_start, NULL);
+		getrusage(RUSAGE_SELF, &r_start);
+	}
+
 	/*--- amida process ---*/
         for (n = 1; n <= N_MAX; n++) {
                 divs_pool[divs[n].pool_ofs] = n;
@@ -135,8 +146,25 @@ int32_t main(int argc, char *argv[])
                 }
         }
 
-	/*--- for printing ---*/
-	if (!benchmark_mode) {
+	/*--- get end time ---*/
+	if (benchmark_mode) {
+		gettimeofday(&wall_end, NULL);
+		getrusage(RUSAGE_SELF, &r_end);
+	}
+
+	if (benchmark_mode) {
+		/*--- print benchmark ---*/
+		double wall = (wall_end.tv_sec - wall_start.tv_sec)
+			    + (wall_end.tv_usec - wall_start.tv_usec) / 1e6;
+		double user = (r_end.ru_utime.tv_sec  - r_start.ru_utime.tv_sec)
+			    + (r_end.ru_utime.tv_usec - r_start.ru_utime.tv_usec) / 1e6;
+		double sys  = (r_end.ru_stime.tv_sec  - r_start.ru_stime.tv_sec)
+			    + (r_end.ru_stime.tv_usec - r_start.ru_stime.tv_usec) / 1e6;
+
+		printf("real %.3fs user %.3fs  sys %.3fs\n", wall, user, sys);
+	}
+	else {
+		/*--- print divisor stars ---*/
 		printf("      n:   d(n):divisors2(n, %d)\n", DSP_MAX);
 		printf("%7d:%7d:", 0, N_MAX);
 		for (m = 1; m <= DSP_MAX; m++) printf("*");
