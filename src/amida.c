@@ -60,6 +60,7 @@
 #define ERR_DIVSALOC   (-2)
 #define ERR_POOLALOC   (-3)
 #define ERR_ILLGCNT    (-4)
+#define ERR_CNTOVER    (-5)
 
 uint32_t *divs_pool;
 
@@ -170,10 +171,17 @@ int32_t main(int argc, char *argv[])
                                         if (divs[n+m].cnt < divs[n+m].pool_cnt) {
                                         	divs_pool[divs[n+m].pool_ofs+divs[n+m].cnt] = m;
 					}
+					else {
+						printf("WRN: divs[%lu].cnt(%lu) >= pool_cnt(%lu)\n", (n+m), 
+							     divs[n+m].cnt, divs[n+m].pool_cnt);
+						ret = ERR_CNTOVER;
+						break;
+					}
                                         divs[n+m].cnt++;
                                 }
                         }
                 }
+		if (ret != ERR_OK) break;
         }
 
 	/*--- get end time ---*/
