@@ -48,22 +48,25 @@
 #include <string.h>
 #include <sys/resource.h>
 #include <sys/time.h>
+#include <ctype.h>
 
 //#define N_MAX (4000000)
 #define N_MAX n_max
 #define M_MAX (N_MAX)
 #define DSP_MAX (128)
 
+#define ERR_OK         (0)
 #define ERR_ARGSTYPE   (-1)
 #define ERR_DIVSALOC   (-2)
 #define ERR_POOLALOC   (-3)
+#define ERR_ILLGCNT    (-4)
 
 uint32_t *divs_pool;
 
 typedef struct {
-	uint32_t pool_ofs;
-	uint32_t pool_cnt;
-	int cnt;
+	uint64_t pool_ofs;
+	uint64_t pool_cnt;
+	uint64_t cnt;
 } DIVS, *pDIVS;
 pDIVS divs;
 
@@ -179,6 +182,18 @@ int32_t main(int argc, char *argv[])
 		getrusage(RUSAGE_SELF, &r_end);
 	}
 
+	/*--- check pool_cnt and cnt in divs ---*/
+	for (n = 1; n < N_MAX; n++) {
+		if (divs[n].pool_cnt == divs[n].cnt) {
+			;
+		}
+		else {
+			printf("WRN: divs[%ld].pool_Cnt(%ld) != cnt(%ld)\n", n, divs[n].pool_cnt, divs[n].cnt);
+			if (ret == ERR_OK) ret = ERR_ILLGCNT;
+			break;
+		}
+	}
+
 	if (benchmark_mode) {
 		/*--- print benchmark ---*/
 		double wall = (wall_end.tv_sec - wall_start.tv_sec)
@@ -198,7 +213,7 @@ int32_t main(int argc, char *argv[])
 		printf("...\n");
 		
        	 	for (n = 1; n <= N_MAX; n++) {
-			printf("%7lu:%7d:", n, divs[n].cnt);
+			printf("%7lu:%7lu:", n, divs[n].cnt);
 			pre = 0;
                 	for (int cnt = divs[n].cnt; cnt > 0; cnt--) {
                         	m = divs_pool[divs[n].pool_ofs+(cnt-1)];
