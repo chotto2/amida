@@ -65,13 +65,13 @@
 uint32_t *divs_pool;
 
 typedef struct {
-	uint64_t pool_ofs;
-	uint64_t pool_cnt;
-	uint64_t cnt;
+	uint32_t pool_ofs;
+	uint32_t pool_cnt;
+	uint32_t cnt;
 } DIVS, *pDIVS;
 pDIVS divs;
 
-uint64_t n_max = 1000000;
+uint32_t n_max = 1000000;
 int benchmark_mode = 0;
 
 int is_digits(const char *s) {
@@ -87,12 +87,12 @@ int is_digits(const char *s) {
  */
 int32_t main(int argc, char *argv[])
 {
-	uint64_t m;
-	uint64_t n;
-	uint64_t d;
+	uint32_t m;
+	uint32_t n;
+	uint32_t d;
 	int32_t ret = 0;
-	uint64_t ofs;
-        uint64_t pre;
+	uint32_t ofs;
+        uint32_t pre;
 	struct rusage r_start, r_end;
 	struct timeval wall_start, wall_end;
 
@@ -145,6 +145,7 @@ int32_t main(int argc, char *argv[])
 		printf("ERR: divs_pool(0) = calloc(%ld, %ld)\n", ofs, sizeof(uint32_t));
 		return ERR_POOLALOC;
 	}
+	printf("pool size = %lu\n", ofs*sizeof(uint32_t));
 
 	/*--- get start time ---*/
 	if (benchmark_mode) {
