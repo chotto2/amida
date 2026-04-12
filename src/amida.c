@@ -118,7 +118,7 @@ int32_t main(int argc, char *argv[])
 	/*--- alloc divs ---*/
 	divs = calloc(N_MAX+1, sizeof(DIVS));
 	if (divs == NULL) {
-		printf("ERR: divs(0) = calloc(%ld, %ld)\n", N_MAX+1, sizeof(DIVS));
+		printf("ERR: divs(0) = calloc(%u, %ld)\n", N_MAX+1, sizeof(DIVS));
 		return ERR_DIVSALOC;
 	}
 
@@ -142,10 +142,12 @@ int32_t main(int argc, char *argv[])
 	if (divs_pool == NULL) {
 		free(divs);
 		divs = NULL;
-		printf("ERR: divs_pool(0) = calloc(%ld, %ld)\n", ofs, sizeof(uint32_t));
+		printf("ERR: divs_pool(0) = calloc(%u, %lu)\n", ofs, sizeof(uint32_t));
 		return ERR_POOLALOC;
 	}
+#if 0	// for test.
 	printf("pool size = %lu\n", ofs*sizeof(uint32_t));
+#endif
 
 	/*--- get start time ---*/
 	if (benchmark_mode) {
@@ -169,15 +171,19 @@ int32_t main(int argc, char *argv[])
                                         ;
                                 }
                                 else {
+#if 0	// for test.
                                         if (divs[n+m].cnt < divs[n+m].pool_cnt) {
                                         	divs_pool[divs[n+m].pool_ofs+divs[n+m].cnt] = m;
 					}
 					else {
-						printf("WRN: divs[%lu].cnt(%lu) >= pool_cnt(%lu)\n", (n+m), 
+						printf("WRN: divs[%u].cnt(%u) >= pool_cnt(%u)\n", (n+m), 
 							     divs[n+m].cnt, divs[n+m].pool_cnt);
 						ret = ERR_CNTOVER;
 						break;
 					}
+#else
+                                       	divs_pool[divs[n+m].pool_ofs+divs[n+m].cnt] = m;
+#endif
                                         divs[n+m].cnt++;
                                 }
                         }
@@ -191,20 +197,31 @@ int32_t main(int argc, char *argv[])
 		getrusage(RUSAGE_SELF, &r_end);
 	}
 
+#if 0	// for test.
 	/*--- check pool_cnt and cnt in divs ---*/
 	for (n = 1; n < N_MAX; n++) {
 		if (divs[n].pool_cnt == divs[n].cnt) {
 			;
 		}
 		else {
-			printf("WRN: divs[%ld].pool_Cnt(%ld) != cnt(%ld)\n", n, divs[n].pool_cnt, divs[n].cnt);
+			printf("WRN: divs[%u].pool_Cnt(%u) != cnt(%u)\n", n, divs[n].pool_cnt, divs[n].cnt);
 			if (ret == ERR_OK) ret = ERR_ILLGCNT;
 			break;
 		}
 	}
+#endif
 
+#if 0	// for test.
+	/*--- dump head of pool ---*/
+	for (int i = 0; i < 300; i++) {
+		printf("%4u ", divs_pool[i]);
+		if ((i+1)%30 == 0) printf("\n");
+	}
+#endif
+
+	/*--- print ---*/
 	if (benchmark_mode) {
-		/*--- print benchmark ---*/
+		/*--- benchmark ---*/
 		double wall = (wall_end.tv_sec - wall_start.tv_sec)
 			    + (wall_end.tv_usec - wall_start.tv_usec) / 1e6;
 		double user = (r_end.ru_utime.tv_sec  - r_start.ru_utime.tv_sec)
@@ -215,14 +232,14 @@ int32_t main(int argc, char *argv[])
 		printf("real %.3fs user %.3fs  sys %.3fs\n", wall, user, sys);
 	}
 	else {
-		/*--- print divisor stars ---*/
+		/*--- divisor stars ---*/
 		printf("      n:   d(n):divisors2(n, %d)\n", DSP_MAX);
-		printf("%7d:%7ld:", 0, N_MAX);
+		printf("%7d:%7u:", 0, N_MAX);
 		for (m = 1; m <= DSP_MAX; m++) printf("*");
 		printf("...\n");
 		
        	 	for (n = 1; n <= N_MAX; n++) {
-			printf("%7lu:%7lu:", n, divs[n].cnt);
+			printf("%7u:%7u:", n, divs[n].cnt);
 			pre = 0;
                 	for (int cnt = divs[n].cnt; cnt > 0; cnt--) {
                         	m = divs_pool[divs[n].pool_ofs+(cnt-1)];
