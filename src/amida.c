@@ -233,13 +233,13 @@ int32_t main(int argc, char *argv[])
 	}
 	else {
 		/*--- divisor stars ---*/
-		printf("      n:   d(n):divisors2(n, %d)\n", DSP_MAX);
-		printf("%7d:%7u:", 0, N_MAX);
+		printf("%8s:%8s:divisors2(n, %d)\n", "n", "d(n)", DSP_MAX);
+		printf("%8d:%8u:", 0, N_MAX);
 		for (m = 1; m <= DSP_MAX; m++) printf("*");
 		printf("...\n");
 		
        	 	for (n = 1; n <= N_MAX; n++) {
-			printf("%7u:%7u:", n, divs[n].cnt);
+			printf("%8u:%8u:", n, divs[n].cnt);
 			pre = 0;
                 	for (int cnt = divs[n].cnt; cnt > 0; cnt--) {
                         	m = divs_pool[divs[n].pool_ofs+(cnt-1)];
