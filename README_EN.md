@@ -4,7 +4,7 @@
 
 ## Overview
 
-This program finds divisors of integers from 0 to 3000000 using a novel algorithm based on the "45-degree Mirror Conjecture for Divisors" and displays them with asterisks (*).  
+This program finds divisors of integers from 0 to 10000000 using a novel algorithm based on the "45-degree Mirror Conjecture for Divisors" and displays them with asterisks (*).  
 This is a derivative program originating from the previously published [dstar-dev](https://github.com/chotto2/dstar-dev).  
 The asterisk pattern plotted by this program (hereafter referred to as "amida") matches the pattern generated using the Sieve of Eratosthenes.  
 However, it does not use the Sieve of Eratosthenes but instead employs the 45-degree Mirror Conjecture for Divisors described in the dstar-dev README.  
@@ -20,7 +20,7 @@ However, the appearance is the same as dstar-dev.
 ## Features
 
 - 🐳 **Docker Support** - Reproducible build environment
-- 📊 **Divisors up to 3000000** - Suitable size for educational and research purposes
+- 📊 **Divisors up to 10000000** - Suitable size for educational and research purposes
 
 ## Requirements
 
@@ -47,19 +47,39 @@ cd amida
 # Build Docker image
 docker build -t amida .
 
-# Run (list output)
-docker run -it amida /app/build/amida
+# Run (Usage output)
+docker run -it amida amida
+USAGE: amida { {-v | --version} | <n_max> [{-m | --memory}] [{-b | --benchmark}] }
 
-# Run（No list output + performance measurement）
-docker run --rm amida bash -c "time /app/build/amida --benchmark"
+  -v, --version    Show version number
+  n_max            Upper limit for divisor computation (positive integer)
+  -m, --memory     Show memory required for n_max and exit (no computation)
+                   (takes precedence over -b if both are specified)
+  -b, --benchmark  Show elapsed/user/sys time after computation
+
+
+# Run (version number output)
+docker run -it amida amida -v
+version: 2.0.0
+
+# Run (list output)
+docker run -it amida amida 10000000
+
+# Run (No list output + performance measurement)
+docker run -it amida amida 10000000 -b
+real 4.236s user 3.993s  sys 0.106s
+
+# Run (No list output + no performance measurement + display memory usage)
+docker run -it amida amida 10000000 -m
+total memory = 810901468
 ```
 
 ## Performance
 
 ```text
-real    0m2.7145s
-user    0m1.6523s
-sys     0m0.9443s
+real    4.209s
+user    3.963s
+sys     0.139s
 ```
 
 ※Codespace: 2-Core  
@@ -72,37 +92,37 @@ sys     0m0.9443s
 The output result of `amida` is shown below.
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:******************************** ...
-      1:      1:*
-      2:      2:**
-      3:      2:* *
-      4:      3:** *
-      5:      2:*   *
-      6:      4:***  *
-      7:      2:*     *
-      8:      4:** *   *
-      9:      3:* *     *
-     10:      4:**  *    *
-     11:      2:*         *
-     12:      6:**** *     *
-     13:      2:*           *
-     14:      4:**    *      *
-     15:      4:* * *         *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:******************************** ...
+       1:       1:*
+       2:       2:**
+       3:       2:* *
+       4:       3:** *
+       5:       2:*   *
+       6:       4:***  *
+       7:       2:*     *
+       8:       4:** *   *
+       9:       3:* *     *
+      10:       4:**  *    *
+      11:       2:*         *
+      12:       6:**** *     *
+      13:       2:*           *
+      14:       4:**    *      *
+      15:       4:* * *         *
 ...
 ```
 
 The first line indicates that each line of the list consists of three fields separated by ':'.  
 The first field, n, indicates the target integer value.  
 The second field, d(n), indicates the number of divisors of integer n.  
-The third field, divisor2(n, 128), indicates plotting asterisks (*) at divisor positions.  
+The third field, divisors2(n, 128), indicates plotting asterisks (*) at divisor positions.  
 The positions of divisors (asterisks) are in ascending order 1, 2, 3... from the side closer to the second field.  
-divisor2(n, 128) limits the upper bound of divisors to 128 and displays the results with asterisks.
+divisors2(n, 128) limits the upper bound of divisors to 128 and displays the results with asterisks.
 
 For example, looking at the output for integer 6:
 
 ```text
-      6:      4:***  * 
+      6:       4:***  * 
 ```
 
 This indicates that integer 6 has 4 divisors, which are {1, 2, 3, 6}. (Positions 4 and 5 are blank)
@@ -114,98 +134,98 @@ This indicates that integer 6 has 4 divisors, which are {1, 2, 3, 6}. (Positions
 Step 1) Plot divisors of n=0
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      0:
-      2:      0:
-      3:      0:
-      4:      0:
-      5:      0:
-      6:      0:
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       0:
+       2:       0:
+       3:       0:
+       4:       0:
+       5:       0:
+       6:       0:
 ...
 ```
 
 Step 2) Expand divisor pattern of n=0 from n=1 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      1: *
-      3:      1:  *
-      4:      1:   *
-      5:      1:    *
-      6:      1:     *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       1: *
+       3:       1:  *
+       4:       1:   *
+       5:       1:    *
+       6:       1:     *
 ...
 ```
 
 Step 3) Expand divisor pattern of n=1 from n=2 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      2:**
-      3:      1:  *
-      4:      1:   *
-      5:      1:    *
-      6:      1:     *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       2:**
+       3:       1:  *
+       4:       1:   *
+       5:       1:    *
+       6:       1:     *
 ...
 ```
 
 Step 4) Expand divisor pattern of n=2 from n=3 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      2:**
-      3:      2:* *
-      4:      2: * *
-      5:      1:    *
-      6:      1:     *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       2:**
+       3:       2:* *
+       4:       2: * *
+       5:       1:    *
+       6:       1:     *
 ...
 ```
 
 Step 5) Expand divisor pattern of n=3 from n=4 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      2:**
-      3:      2:* *
-      4:      3:** *
-      5:      1:    *
-      6:      2:  *  *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       2:**
+       3:       2:* *
+       4:       3:** *
+       5:       1:    *
+       6:       2:  *  *
 ...
 ```
 
 Step 6) Expand divisor pattern of n=4 from n=5 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      2:**
-      3:      2:* *
-      4:      3:** *
-      5:      2:*   *
-      6:      3: **  *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       2:**
+       3:       2:* *
+       4:       3:** *
+       5:       2:*   *
+       6:       3: **  *
 ...
 ```
 
 Step 7) Expand divisor pattern of n=5 from n=6 at 45-degree angle
 
 ```text
-      n:   d(n):divisor2(n, 128)
-      0:3000000:********************************...
-      1:      1:*
-      2:      2:**
-      3:      2:* *
-      4:      3:** *
-      5:      2:*   *
-      6:      4:***  *
+       n:    d(n):divisors2(n, 128)
+       0:10000000:********************************...
+       1:       1:*
+       2:       2:**
+       3:       2:* *
+       4:       3:** *
+       5:       2:*   *
+       6:       4:***  *
 ...
 ```
 
@@ -217,13 +237,12 @@ Step 8) By repeating the above process, divisors of all integers can be found.
 ## Technical Details
 
 - **Language**: C
-- **Library**: GMP (GNU Multiple Precision Arithmetic Library)
 - **Build System**: CMake
-- **Divisor Range**: 0..3000000
+- **Divisor Range**: 0..10000000
 
 ## Cautions
 
-⚠️ **Important**: This version is an implementation for educational and research purposes. It handles divisors up to integer 3000000, so it does not affect modern cryptographic systems (such as RSA-4096).
+⚠️ **Important**: This version is an implementation for educational and research purposes. It handles divisors up to integer 10000000, so it does not affect modern cryptographic systems (such as RSA-4096).
 
 ## Future Plans
 
